@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 public class MatrixMultiplication {
 	
 	private static final int NUMBER_THREADS = 1;
-	private static final int MATRIX_SIZE = 2000;
+	private static final int MATRIX_SIZE = 2;
 
         public static void main(String[] args) {
 		
@@ -14,11 +14,10 @@ public class MatrixMultiplication {
 		double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
 		double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
 
-		//double[][] c = {{2,3,2}, {1,4,2},{3,4,1}};
-		//double[][] d = {{5,1,1}, {1,3,4},{5,3,4}};
+		// **IMPORTANT** Adjust @param MATRIX_SIZE to size of desired matrices when testing
+		testSequentialMultiplication(2,2);
 
-		//printAllMatrices(a,b);
-		sequentialMultiplyMatrix(a, b);
+		//sequentialMultiplyMatrix(a, b);
 		//parallelMultiplyMatrix(a, b);
 	}
 	
@@ -33,8 +32,8 @@ public class MatrixMultiplication {
 
 		double[] elementsInRowA = new double[MATRIX_SIZE];
 		double[] elementsInColumnB = new double[MATRIX_SIZE];
-		double elementInProductMatrix = 0;
 		double[][] productMatrix =  new double[MATRIX_SIZE][MATRIX_SIZE];
+	
 		int columnOfB = 0;
 		double sum = 0;
 
@@ -110,5 +109,16 @@ public class MatrixMultiplication {
 			}
 			System.out.println("\n");
 		}
+	}
+
+	/**
+	 * Use this to test sequential matrix multiplication
+	 * @param rows
+	 * @param columns
+	 */
+	private static void testSequentialMultiplication(int rows, int columns){
+		double[][] matrix_1 = generateRandomMatrix(rows, columns);
+		double[][] matrix_2 = generateRandomMatrix(rows, columns);
+		printAllMatrices(matrix_1, matrix_2);
 	}
 }
