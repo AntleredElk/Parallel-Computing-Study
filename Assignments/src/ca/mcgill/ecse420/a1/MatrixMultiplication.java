@@ -11,15 +11,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class MatrixMultiplication {
 
-	private static final int NUMBER_THREADS = 3;
-	private static final int MATRIX_SIZE = 10;
+	private static final int NUMBER_THREADS = 1000;
+	private static final int MATRIX_SIZE = 1000;
 
 	public static void main(String[] args) {
 
 		/**
 		 * **IMPORTANT** Adjust @param type to TRUE for parallel execution or FALSE for sequential
 		 */
-		testMatrixMultiplication(true, MATRIX_SIZE, MATRIX_SIZE);
+		testMatrixMultiplication(MATRIX_SIZE, MATRIX_SIZE);
 
 	}
 
@@ -110,7 +110,7 @@ public class MatrixMultiplication {
 		double[][] matrixB;
 		double[][] matrixC;
 		double sum;
-		int inUse = 0;
+		int threadInUse = 0;
 		int row;
 
 		public singleElementComputation(double[][] matrixA, double[][] matrixB, double[][] matrixC,
@@ -124,7 +124,7 @@ public class MatrixMultiplication {
 		//TODO look at inUSe method
 		@Override public void run() {
 			while (row != MATRIX_SIZE) {
-				inUse++;
+				threadInUse++;
 				for (int columnIndex = 0; columnIndex < MATRIX_SIZE; columnIndex++) {
 					sum = 0;
 					for (int dualIndex = 0; dualIndex < MATRIX_SIZE; dualIndex++) {
@@ -132,8 +132,8 @@ public class MatrixMultiplication {
 					}
 					matrixC[row][columnIndex] = sum;
 				}
-				inUse--;
-				while (inUse != 0) {
+				threadInUse--;
+				while (threadInUse != 0) {
 				}
 				row++;
 			}
@@ -144,10 +144,10 @@ public class MatrixMultiplication {
 	 * @param rows
 	 * @param columns
 	 */
-	private static void testMatrixMultiplication(boolean type, int rows, int columns){
+	private static void testMatrixMultiplication(int rows, int columns){
 		double[][] matrix_1 = generateRandomMatrix(rows, columns);
 		double[][] matrix_2 = generateRandomMatrix(rows, columns);
-		printAllMatrices(type, matrix_1, matrix_2);
+		printAllMatrices(matrix_1, matrix_2);
 	}
 
 	/**
@@ -156,24 +156,25 @@ public class MatrixMultiplication {
 	 * @param matrix_1 of size mxn
 	 * @param matrix_2 of size mxp
 	 */
-	private static void printAllMatrices(boolean type, double[][] matrix_1, double[][] matrix_2) {
+	private static void printAllMatrices(double[][] matrix_1, double[][] matrix_2) {
 		double millisecond = 1000000.0;
-		System.out.println("Matrix A: ----------");
+		//System.out.println("Matrix A: ----------");
 		//printMatrix(matrix_1);
-		System.out.println("Matrix B: ----------");
+		//System.out.println("Matrix B: ----------");
 		//printMatrix(matrix_2);
 		//if(type == true){
 		System.out.println("Parallel Matrix AB: ----------");
 		long startParallel = System.nanoTime();
 		parallelMultiplyMatrix(matrix_1, matrix_2);
-		printMatrix(parallelMultiplyMatrix(matrix_1, matrix_2));
+		//printMatrix(parallelMultiplyMatrix(matrix_1, matrix_2));
 		long finishParallel = System.nanoTime();
 		System.out.println("Elapsed time: " + ((finishParallel - startParallel) / millisecond));
 		//}else {
+
 		System.out.println("Sequential Matrix AB: ----------");
 		long startSequential = System.nanoTime();
 		sequentialMultiplyMatrix(matrix_1, matrix_2);
-		printMatrix(sequentialMultiplyMatrix(matrix_1, matrix_2));
+		//printMatrix(sequentialMultiplyMatrix(matrix_1, matrix_2));
 		long finishSequential = System.nanoTime();
 		System.out.println("Elapsed time: " + ((finishSequential - startSequential) / millisecond));
 		//}
