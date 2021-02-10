@@ -1,18 +1,14 @@
 package ca.mcgill.ecse420.a1;
 
-import java.awt.image.ImagingOpException;
+import sun.security.util.Length;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class MatrixMultiplication {
 
 	private static final int NUMBER_THREADS = 1000;
-	private static final int MATRIX_SIZE = 1000;
+	private static final int MATRIX_SIZE = 4000;
 
 	public static void main(String[] args) {
 
@@ -75,11 +71,16 @@ public class MatrixMultiplication {
 	public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
 
 		double[][] productMatrix = new double[MATRIX_SIZE][MATRIX_SIZE];
+		ExecutorService executor = Executors.newCachedThreadPool();
 
 		for (int index = 0; index < NUMBER_THREADS; index++) {
-			singleElementComputation test = new singleElementComputation(a, b, productMatrix, index);
-			Thread thread = new Thread(test);
-			thread.start();
+
+			executor.execute(new singleElementComputation(a, b, productMatrix, index));
+			//System.out.println(index);
+		}
+		executor.shutdown();
+		while(!executor.isTerminated()){
+			//Wait until executor is finished
 		}
 
 		return productMatrix;
@@ -105,26 +106,27 @@ public class MatrixMultiplication {
 	// Determines one element of the product matrix at position x,y
 	public static class singleElementComputation implements Runnable {
 
-
 		double[][] matrixA;
 		double[][] matrixB;
 		double[][] matrixC;
 		double sum;
 		int threadInUse = 0;
-		int row;
+		int thread;
+		int divisionBlock = MATRIX_SIZE/NUMBER_THREADS;
 
 		public singleElementComputation(double[][] matrixA, double[][] matrixB, double[][] matrixC,
-			int row) {
+			int thread) {
 			this.matrixA = matrixA;
 			this.matrixB = matrixB;
 			this.matrixC = matrixC;
-			this.row = row;
+			this.thread = thread;
 		}
 
-		//TODO look at inUSe method
 		@Override public void run() {
-			while (row != MATRIX_SIZE) {
-				threadInUse++;
+			if(divisionBlock == 0) divisionBlock = 1;
+			for(int index = thread * divisionBlock; index < (thread+1)*divisionBlock; index++ ) {
+				if(index >= MATRIX_SIZE) break;
+				int row = index;
 				for (int columnIndex = 0; columnIndex < MATRIX_SIZE; columnIndex++) {
 					sum = 0;
 					for (int dualIndex = 0; dualIndex < MATRIX_SIZE; dualIndex++) {
@@ -132,11 +134,22 @@ public class MatrixMultiplication {
 					}
 					matrixC[row][columnIndex] = sum;
 				}
-				threadInUse--;
-				while (threadInUse != 0) {
-				}
-				row++;
 			}
+			//If threads and Matrix size aren't divisible
+			if(MATRIX_SIZE > NUMBER_THREADS && MATRIX_SIZE%NUMBER_THREADS != 0 && MATRIX_SIZE != divisionBlock){
+				for(int index = thread + NUMBER_THREADS * divisionBlock; index < (thread + NUMBER_THREADS * divisionBlock + divisionBlock); index++ ) {
+					if(index >= MATRIX_SIZE) break;
+					int row = index;
+					for (int columnIndex = 0; columnIndex < MATRIX_SIZE; columnIndex++) {
+						sum = 0;
+						for (int dualIndex = 0; dualIndex < MATRIX_SIZE; dualIndex++) {
+							sum += matrixA[row][dualIndex] * matrixB[dualIndex][columnIndex];
+						}
+						matrixC[row][columnIndex] = sum;
+					}
+				}
+			}
+
 		}
 	}
 	/**
@@ -158,6 +171,7 @@ public class MatrixMultiplication {
 	 */
 	private static void printAllMatrices(double[][] matrix_1, double[][] matrix_2) {
 		double millisecond = 1000000.0;
+		double sleepTime = 1.0;
 		//System.out.println("Matrix A: ----------");
 		//printMatrix(matrix_1);
 		//System.out.println("Matrix B: ----------");
@@ -168,7 +182,7 @@ public class MatrixMultiplication {
 		parallelMultiplyMatrix(matrix_1, matrix_2);
 		//printMatrix(parallelMultiplyMatrix(matrix_1, matrix_2));
 		long finishParallel = System.nanoTime();
-		System.out.println("Elapsed time: " + ((finishParallel - startParallel) / millisecond));
+		System.out.println("Elapsed time: " + ((finishParallel - startParallel - sleepTime) / millisecond));
 		//}else {
 
 		System.out.println("Sequential Matrix AB: ----------");
@@ -176,11 +190,19 @@ public class MatrixMultiplication {
 		sequentialMultiplyMatrix(matrix_1, matrix_2);
 		//printMatrix(sequentialMultiplyMatrix(matrix_1, matrix_2));
 		long finishSequential = System.nanoTime();
-		System.out.println("Elapsed time: " + ((finishSequential - startSequential) / millisecond));
+		System.out.println("Elapsed time: " + ((finishSequential - startSequential - sleepTime) / millisecond));
 		//}
 	}
 
 	private static void printMatrix(double[][] matrix) {
+		try
+		{
+			Thread.sleep(1);
+		}
+		catch(InterruptedException ex)
+		{
+			Thread.currentThread().interrupt();
+		}
 		for (int i = 0; i < matrix[0].length; i++) {
 			for (int j = 0; j < matrix[1].length; j++) {
 				System.out.print(matrix[i][j] + "\t\t");
