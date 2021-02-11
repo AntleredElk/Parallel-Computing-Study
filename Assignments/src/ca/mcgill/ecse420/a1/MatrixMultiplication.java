@@ -129,7 +129,8 @@ public class MatrixMultiplication {
 					matrixC[row][columnIndex] = sum;
 				}
 			}
-			//If threads and Matrix size aren't divisible
+			// If threads and Matrix size aren't divisible then we can make threads take on additional
+			// tasks here.
 			if(MATRIX_SIZE > NUMBER_THREADS && MATRIX_SIZE%NUMBER_THREADS != 0 && MATRIX_SIZE != divisionBlock){
 				for(int index = thread + NUMBER_THREADS * divisionBlock; index < (thread + NUMBER_THREADS * divisionBlock + divisionBlock); index++ ) {
 					if(index >= MATRIX_SIZE) break;
@@ -143,7 +144,6 @@ public class MatrixMultiplication {
 					}
 				}
 			}
-
 		}
 	}
 	/**
@@ -170,22 +170,18 @@ public class MatrixMultiplication {
 		//printMatrix(matrix_1);
 		//System.out.println("Matrix B: ----------");
 		//printMatrix(matrix_2);
-		//if(type == true){
+
 		System.out.println("Parallel Matrix AB: ----------");
 		long startParallel = System.nanoTime();
 		parallelMultiplyMatrix(matrix_1, matrix_2);
-		//printMatrix(parallelMultiplyMatrix(matrix_1, matrix_2));
 		long finishParallel = System.nanoTime();
-		System.out.println("Elapsed time: " + ((finishParallel - startParallel - sleepTime) / millisecond));
-		//}else {
+		System.out.println("Elapsed time: " + ((finishParallel- startParallel - sleepTime)/ millisecond));
 
 		System.out.println("Sequential Matrix AB: ----------");
 		long startSequential = System.nanoTime();
 		sequentialMultiplyMatrix(matrix_1, matrix_2);
-		//printMatrix(sequentialMultiplyMatrix(matrix_1, matrix_2));
 		long finishSequential = System.nanoTime();
-		System.out.println("Elapsed time: " + ((finishSequential - startSequential - sleepTime) / millisecond));
-		//}
+		System.out.println("Elapsed time: " + ((finishSequential - startSequential - sleepTime)/ millisecond));
 	}
 
 	private static void printMatrix(double[][] matrix) {
