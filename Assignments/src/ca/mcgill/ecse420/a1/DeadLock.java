@@ -29,39 +29,36 @@ public class DeadLock {
     }
 
     static class sharedVariable implements Runnable{
-        boolean[] resourcesInUse = {false, false};
-        Lock lock = new ReentrantLock();
-
-        synchronized void getResource(){
-            if(!resourcesInUse[0]){
-                resourcesInUse[0] = true;
-                System.out.println(Thread.currentThread().getId() + " secured Resource 0");
-            }
-            else if(!resourcesInUse[1]){
-                resourcesInUse[1] = true;
-                System.out.println(Thread.currentThread().getId() + " secured Resource 1");
-            }
-        }
-        synchronized void getNextResource(){
-            if (resourcesInUse[0] && !resourcesInUse[1]) {
-                resourcesInUse[1] = true;
-                resourcesInUse[0] = false;
-                System.out.println(Thread.currentThread().getId() + " secured 1 and released 0");
-            } else if (resourcesInUse[1] && !resourcesInUse[0]) {
-                resourcesInUse[0] = true;
-                resourcesInUse[1] = false;
-                System.out.println(Thread.currentThread().getId() + " secured 0 and released 1");
-            }
-            else System.out.println(Thread.currentThread().getId() + " currently in Deadlock");
-
-        }
+        Lock lock1 = new ReentrantLock();
+        Lock lock2 = new ReentrantLock();
 
         @Override
         public void run(){
-            getResource();
-            getNextResource();
-            getResource();
-            getNextResource();
+            while(true) {
+                if (lock1.tryLock()) {
+                    System.out.println(Thread.currentThread().getId() + " acquired lock 1.");
+                    lock2.lock();
+                    // To prevent deadlock, move the code referenced a few lines down.
+                    System.out.println(Thread.currentThread().getId() + " acquired lock 2.");
+                    lock2.unlock();
+                    System.out.println(Thread.currentThread().getId() + " released lock 2.");
+                    // The below piece of code can be moved into the above position.
+                    lock1.unlock();
+                    System.out.println(Thread.currentThread().getId() + " released lock 1.");
+
+                } else if (lock2.tryLock()) {
+                    System.out.println(Thread.currentThread().getId() + " acquired lock 2.");
+                    lock1.lock();
+                    // To prevent deadlock, move the code referenced a few lines down.
+                    System.out.println(Thread.currentThread().getId() + " acquired lock 1.");
+                    lock1.unlock();
+                    System.out.println(Thread.currentThread().getId() + " released lock 1.");
+                    // The below piece of code can be moved into the above position.
+                    lock2.unlock();
+                    System.out.println(Thread.currentThread().getId() + " released lock 2.");
+
+                }
+            }
         }
 
     }

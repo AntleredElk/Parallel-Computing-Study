@@ -1,0 +1,6 @@
+
+Q1.6
+
+From the first graph, we can see that it takes the program roughy 1 minute to execute completely. Every additional thread beyond that hovers around the 10s mark. This may be because of the additional overhead that is created for each new thread to run. Creating additional threads to decrease time is inefficient here. 
+
+The second graph illustrates the time required to run our program in parallel and sequentially. We note that there is greater exponential growth for the sequential computation. This makes sense, given that each row and column most be handled sequentially and incrementally. The threaded version allows for parallel execution of many rows and columns. We have used 1000 threads for this part.  

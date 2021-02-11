@@ -1,22 +1,16 @@
 package ca.mcgill.ecse420.a1;
 
-import sun.security.util.Length;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MatrixMultiplication {
 
 	private static final int NUMBER_THREADS = 1000;
-	private static final int MATRIX_SIZE = 4000;
+	private static final int MATRIX_SIZE = 2000;
 
 	public static void main(String[] args) {
 
-		/**
-		 * **IMPORTANT** Adjust @param type to TRUE for parallel execution or FALSE for sequential
-		 */
 		testMatrixMultiplication(MATRIX_SIZE, MATRIX_SIZE);
-
 	}
 
 	/**
