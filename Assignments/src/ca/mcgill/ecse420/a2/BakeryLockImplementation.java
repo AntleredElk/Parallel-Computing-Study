@@ -1,7 +1,5 @@
 package ca.mcgill.ecse420.a2;
 
-import ca.mcgill.ecse420.a1.MatrixMultiplication;
-
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -9,12 +7,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class FilterLockImplementation {
+public class BakeryLockImplementation {
 
-    final static int numberOfThreads = 4;
-    static FilterLock lock = new FilterLock(numberOfThreads);
-    static int[] levelsTracker = new int[numberOfThreads];
-    static int[] victimsTracker = new int[numberOfThreads];
+    final static int numberOfThreads = 6;
+    static BakeryLock lock = new BakeryLock(numberOfThreads);
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newCachedThreadPool();
@@ -28,45 +24,52 @@ public class FilterLockImplementation {
             //Wait until executor is finished
         }
     }
-    static class FilterLock implements Lock {
-        volatile int[] levels;
-        volatile int[] victims;
 
-        // Constructor for Filter
-        public FilterLock(int numberOfThreads) {
-            levels = new int[numberOfThreads];
-            victims = new int[numberOfThreads];
+    static class BakeryLock implements Lock{
+        boolean[] flags;
+        int[] labels;
+        int max = 0;
 
-            for (int i = 1; i < numberOfThreads; i++){
-                levels[i] = 0;
+        public BakeryLock(int numberOfThreads){
+            flags = new boolean[numberOfThreads];
+            labels = new int[numberOfThreads];
+
+            for (int i = 0; i < numberOfThreads; i++){
+                flags[i] = false;
+                labels[i] = 0;
             }
         }
 
-        @Override public void lock(){
+        @Override public void lock() {
             int thread = (int)Thread.currentThread().getId()%numberOfThreads;
 
-            for (int level = 1; level < numberOfThreads ; level++){
-                levels[thread] = level; // Thread declares interest some level
-                victims[level] = thread; //Threads declares itself the victim
-                System.out.println("Desired level by Threads: " + Arrays.toString(levels));
-                for (int i = 1; i < numberOfThreads; i++){
-                    while(thread != i && levels[i] >= levels[thread] && victims[level] == thread){
-                        // Wait here
-                        try {
-                            // Sleep to allow other threads CPU resources to run
-                            Thread.sleep(1);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+
+            for(int value: labels)
+                max = Math.max(max, value);
+
+            flags[thread] = true; // Indicates interest in lock
+            labels[thread] = max + 1; // Takes the next "number" in wait system
+            System.out.println("Desired level by Threads: " + Arrays.toString(labels));
+            for (int i = 1; i < numberOfThreads; i++){{
+                while(thread !=i && flags[i] && labels[thread] >= labels[i]){
+                    // Wait here
+                    if(labels[thread] == labels[i]){
+                        if(thread < i) break;
+                    }
+                    try {
+                        // Sleep to allow other threads CPU resources to run
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
-
-            }
+            }}
         }
 
-        @Override public void unlock(){
+        @Override public void unlock() {
             int thread = (int)Thread.currentThread().getId()%numberOfThreads;
-            levels[thread] = 0;
+            flags[thread] = false;
+
         }
 
         /**
