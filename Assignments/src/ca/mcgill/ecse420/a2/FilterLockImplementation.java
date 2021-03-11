@@ -12,6 +12,9 @@ import java.util.concurrent.Executors;
 public class FilterLockImplementation {
 
     final static int numberOfThreads = 4;
+    static int counter = 0;
+    static int position = 0;
+    static int[] counterArray = new int[numberOfThreads];
     static FilterLock lock = new FilterLock(numberOfThreads);
     static int[] levelsTracker = new int[numberOfThreads];
     static int[] victimsTracker = new int[numberOfThreads];
@@ -27,6 +30,7 @@ public class FilterLockImplementation {
         while(!executor.isTerminated()){
             //Wait until executor is finished
         }
+        System.out.println("Count order: "+Arrays.toString(counterArray));
     }
     static class FilterLock implements Lock {
         volatile int[] levels;
@@ -48,7 +52,7 @@ public class FilterLockImplementation {
             for (int level = 1; level < numberOfThreads ; level++){
                 levels[thread] = level; // Thread declares interest some level
                 victims[level] = thread; //Threads declares itself the victim
-                System.out.println("Desired level by Threads: " + Arrays.toString(levels));
+                System.out.println("Seen by thread " + thread + ": " + Arrays.toString(levels));
                 for (int i = 1; i < numberOfThreads; i++){
                     while(thread != i && levels[i] >= levels[thread] && victims[level] == thread){
                         // Wait here
@@ -94,9 +98,17 @@ public class FilterLockImplementation {
     static class someTask implements Runnable{
 
         @Override public void run() {
+            int thread = (int)Thread.currentThread().getId()%numberOfThreads;
+            // Do not lock the lock to see what happens to counter order
             lock.lock();
-            System.out.println("*** Thread " + Thread.currentThread().getId()%numberOfThreads + " has lock and is busy...");
-            lock.unlock();
+            try {
+                counter++;
+                System.out.println("*** Thread " + thread + " has lock, Counter is " + counter + "...");
+                counterArray[position] = counter;
+                position++;
+            }finally {
+                lock.unlock();
+            }
         }
     }
 }

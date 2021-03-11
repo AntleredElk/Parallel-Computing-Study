@@ -9,8 +9,11 @@ import java.util.concurrent.Executors;
 
 public class BakeryLockImplementation {
 
-    final static int numberOfThreads = 6;
+    final static int numberOfThreads = 5;
     static BakeryLock lock = new BakeryLock(numberOfThreads);
+    static int counter = 0;
+    static int position = 0;
+    static int[] counterArray = new int[numberOfThreads];
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newCachedThreadPool();
@@ -23,6 +26,7 @@ public class BakeryLockImplementation {
         while(!executor.isTerminated()){
             //Wait until executor is finished
         }
+        System.out.println("Count order: "+Arrays.toString(counterArray));
     }
 
     static class BakeryLock implements Lock{
@@ -49,7 +53,7 @@ public class BakeryLockImplementation {
 
             flags[thread] = true; // Indicates interest in lock
             labels[thread] = max + 1; // Takes the next "number" in wait system
-            System.out.println("Desired level by Threads: " + Arrays.toString(labels));
+            System.out.println("Seen by thread " + thread + ": " + Arrays.toString(labels));
             for (int i = 1; i < numberOfThreads; i++){{
                 while(thread !=i && flags[i] && labels[thread] >= labels[i]){
                     // Wait here
@@ -97,9 +101,17 @@ public class BakeryLockImplementation {
     static class someTask implements Runnable{
 
         @Override public void run() {
+            int thread = (int)Thread.currentThread().getId()%numberOfThreads;
+            // Do not lock the lock to see what happens to counter order
             lock.lock();
-            System.out.println("*** Thread " + Thread.currentThread().getId()%numberOfThreads + " has lock and is busy...");
-            lock.unlock();
+            try {
+                counter++;
+                System.out.println("*** Thread " + thread + " has lock, Counter is " + counter + "...");
+                counterArray[position] = counter;
+                position++;
+            }finally {
+                lock.unlock();
+            }
         }
     }
 }
