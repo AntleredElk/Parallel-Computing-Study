@@ -1,0 +1,160 @@
+1 - Order the following types of memory registers in order of increasing strength of the correctness conditions they provided.
+ANS: Atomic(3), Regular(2), Safe(1)
+
+2 - The Atomic Snapshot object, capable of taking an instantaneous snapshot of an arbitrary-size array of SWMR (single-writer multiple-reader) registers, can be built starting from only simple SWSR (single-writer single-reader) safe binary registers.
+ANS: True
+
+3 - Place the following progress conditions in increasing order of strength.
+ANS:  1 - Deadlock-free 4 - Wait-free 2 - Starvation-free 3 - Lock-free
+
+4 - Match each of the following conditions with the type of progress they guarantee.
+ANS: 1(Blocking) - Deadlock-free, Starvation-free 2(Non-blocking) - Wait-free, Lock-free
+
+5 -  Linearizability is a correctness condition that is useful for reasoning about concurrent objects and algorithms.
+AND: True
+
+6 - Sequential consistency is a stronger correctness condition than linearizability.
+ANS: False
+
+7 - Which of the following correctness conditions provides composability?
+ANS: Linearizability
+
+8 - Modern computer hardware and software compilers may actively reorder program instructions (e.g., memory reads/writes) to obtain higher performance because most of performance is derived from a single thread’s unsynchronized execution of code.
+ANS: True
+
+9 - In Java, we can ask the compiler to keep a variable up-to-date by declaring it volatile, which adds a memory barrier after each store and inhibits reordering and other “compiler optimizations".
+ANS: True
+
+10 - Up to how many threads can the Peterson algorithm be used to provide mutual exclusion for?
+ANS: 2
+
+11 - Up to how many thread's can Lamport's Bakery algorithm be used to provide mutual exclusion for?
+ANS: n
+
+12 - What is one possible problem with the Bakery algorithm.
+ANS: Overflow
+
+13 - One advantage of the Bakery algorithm over the Filter lock for providing mutual exclusion is.
+ANS: It guarantees FCFS (first-come first-serve) fairness.
+
+14 - Match the following statements regarding mutual exclusion algorithms to the appropriate progress condition.
+ANS: Deadlock-Free - The system as a whole makes progress. ; Stavation-Free - All individual threads make progress.
+
+15 - Deadlock-free mutual exclusion for n threads requires at least n multi-reader multi-writer registers, assuming only simple read/write operations (i.e., no atomic hardware operations) are used.
+ANS: True
+
+16 - Parallelism - using additional resources to produce an answer faster
+     Concurrency - correctly and efficiently controlling access to shared resources
+     
+17 - Which of the following are appropriate descriptions of what a thread is in the context of concurrent and parallel computing?
+ANS: Both
+
+18 - According to Moore's Law, circuit complexity (i.e., the number of transistors/inch2 ) doubles every 18 months to two years. 
+ANS: True
+
+19 - A Java class that implements the Runnable interface must contain a run() method?
+ANS: True
+
+20 - Which of the following expressions must be true  if you create a thread using Thread = new  Thread(object)?
+ANS: object instanceof Runnable
+
+21 - Suppose there are three Runnable tasks, task1, task2, task3. How do you run them in a thread pool with 2 fixed threads?
+ANS: ExecutorService executor = Executors.newFixedThreadPool(2); executor.execute(task1); executor.execute(task2); executor.execute(task3);
+
+22 - How do you create a cached thread pool?
+ANS: ExecutorService executor = Executors.newCachedThreadPool(); 
+
+23 - A race condition exists when a shared resource may be corrupted if it is accessed simultaneously by multiple threads. 
+ANS: True
+
+24 - A class is said to be thread-safe if an object of the class does not cause a race condition in the presence of multiple threads. 
+ANS: True
+
+25 - To avoid race conditions, more than one thread must be prevented from simultaneously entering a certain part of the program, known as the critical section.
+ANS: True
+ 
+26 - The keyword to synchronize methods in Java is   __________.
+ANS: synchronized
+
+27 - Which of the following are correct statements to create a Lock in Java?
+ANS: All of them except Lock lock = new Lock();
+
+28 - Which of the following are correct statements in Java to create a Lock so the longest-waiting thread will obtain the lock first?
+ANS: Lock lock = new ReentrantLock(true);
+
+29 - You should always invoke the unlock method in a finally clause.
+ANS: True
+
+30 - How do you create a condition on a lock in Java?
+ANS: Condition condition = lock.newCondition();
+
+31 - Which method on a condition should you invoke to cause the current thread to wait until the condition is signalled?
+ANS: condition.await();
+
+32 - Which method on a condition should you invoke to wake all waiting threads?
+ANS: condition.signalAll();
+
+33 - The wait() , notify(), and notifyAll() methods on an object are analogous to the await(), signal(), and signalAll() methods on a condition.
+ANS: False 
+
+34 - can be easily avoided by using a simple technique known as resource ordering, where, with this technique, you assign an order on all the objects whose locks must be acquired and ensure that each thread acquires the locks in that order. 
+ANS: Deadlocks
+
+35 - Within the context of the Java Fork/Join Framework used to parallelize divide-and-conquer solutions, which are naturally recursive, a concrete task that doesn’t return a value should extend the ________________________ class.
+ANS: RecursiveAction
+
+36 - Within the context of the Java Fork/Join Framework used to parallelize divide-and-conquer solutions, which are naturally recursive, a concrete task that returns a value should extend the ________________________ class.
+ANS: RecursiveTask
+
+37 - Which speedup could be achieved according to Amdahl´s law for an infinite number of processors if 5% of a program is sequential and the remaining part is ideally parallel?
+ANS: 20 
+
+38 - Consider a program in which two threads can access shared objects in memory and part of which is considered as a 'critical section'. "It is never the case that both threads are in the critical section simultaneously", is a:
+ANS: Safety property
+
+39 - Consider a program in which two threads can access shared objects in memory and part of which is considered as a 'critical section'. "If only one thread wants to get into the critical section, it gets in", is a:
+ANS: Liveness property
+
+40 - Mutual exclusion can be achieved using _______________ forms of communication between threads.
+ANS: Persistent
+
+41 - The Flag principle is useful for devising mutual exclusion algorithms.
+ANS: True
+
+42 - Select the statements below the apply to a wait-free concurrent algorithm  implementation.
+ANS: Implies no mutual exclusion and Every method call completes in finite number of steps
+
+43 - There is no wait-free implementation of n-thread consensus from read-write registers.
+ANS: True
+
+44 - Atomic read/write registers have consensus number:
+ANS: 1
+
+45 - The consensus number of a compareAndSet() operation is:
+ANS: Infinity
+
+46 - There is no wait-free implementation of RMW (Read-Modify-Write) registers from atomic registers possible; therefore, hardware RMW instructions are not just a convenience but a necessity for concurrent programming in modern computer architectures.
+ANS: True
+
+47 - Which of the following type of spin lock would likely perform best (i.e., provide the highest throughput) on a cache-less NUMA architecture? 
+ANS: MCS
+
+48 - Which of the following types of spin lock has the largest memory requirements if multiple threads can try to acquire multiple different instances of it.
+ANS: Anderson Queue Lock
+
+49 - Select all from the following type(s) of spin lock(s) that provide(s) FCFS (first-come first-serve) fairness?
+ANS: Anderson, MCS, HCL
+
+50 - Atomic registers cannot implement multiple assignment.
+ANS:  True
+
+
+
+
+
+
+
+
+
+
+
