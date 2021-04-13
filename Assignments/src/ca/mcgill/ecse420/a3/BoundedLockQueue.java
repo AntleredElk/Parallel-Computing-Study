@@ -21,14 +21,14 @@ public class BoundedLockQueue<T> {
 
     private T[] array;
 
-    private ReentrantLock enqLock = new ReentrantLock();
-    private ReentrantLock deqLock = new ReentrantLock();
+    ReentrantLock enqLock = new ReentrantLock();
+    ReentrantLock deqLock = new ReentrantLock();
 
-    private Condition notFullCondition = enqLock.newCondition();
-    private Condition notEmptyCondition = deqLock.newCondition();
+    Condition notFullCondition = enqLock.newCondition();
+    Condition notEmptyCondition = deqLock.newCondition();
 
-    private int head = 0;
-    private int tail = 0;
+    int head = 0;
+    int tail = 0;
 
 
     public BoundedLockQueue(int size) {
