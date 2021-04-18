@@ -3,6 +3,9 @@ package ca.mcgill.ecse420.a3;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * The code was inspired by material found in the "The Art of Multiprocessor Programming" textbook.
+ */
 public class FineGrainList<T>{
 
     public static void main(String[] args) {
@@ -15,7 +18,7 @@ public class FineGrainList<T>{
         addElementsToList(linkedList, a, b, x, y, z);
 
         Thread thread1 = new Thread(new someTask(linkedList,z));
-        Thread thread2 = new Thread(new someTask(linkedList,z));
+        Thread thread2 = new Thread(new someTask(linkedList,y));
         Thread thread3 = new Thread(new someTask(linkedList,x));
         Thread thread4 = new Thread(new someTask(linkedList,b));
         Thread thread5 = new Thread(new someTask(linkedList,a));
@@ -171,6 +174,11 @@ public class FineGrainList<T>{
             pred.lock.unlock();
         }
     }
+
+    /**
+     * Task allowing threads to run contains()
+     * @param <T>
+     */
     static class someTask<T> implements Runnable{
 
         FineGrainList linkedList;
